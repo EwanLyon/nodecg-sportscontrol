@@ -1,0 +1,82 @@
+{
+	"name": "nodecg-sportscontrol",
+	"version": "0.0.0",
+	"description": "",
+	"homepage": "",
+	"author": {
+		"name": "Ewan"
+	},
+	"files": [
+		"dashboard",
+		"graphics",
+		"extension.js",
+		"extension"
+	],
+	"keywords": [
+		"",
+		"nodecg-bundle"
+	],
+	"nodecg": {
+		"compatibleRange": "^1.8.1",
+		"dashboardPanels": [
+			{
+				"name": "dashboard",
+				"title": "Dashboard",
+				"width": 2,
+				"headerColor": "#2d4e8a",
+				"file": "test-dash.html"
+			}
+		],
+		"graphics": [
+			{
+				"file": "test-graphic.html",
+				"width": 1920,
+				"height": 1080
+			}
+		]
+	},
+	"scripts": {
+		"build": "webpack",
+		"dev:tsc": "yarn test:types -w --preserveWatchOutput",
+		"dev:webpack": "cross-env WEBPACK_WATCH=true webpack",
+		"start": "node ../..",
+		"test:prettier": "prettier \"**/*.{ts,tsx,json,html,yml,css,scss,md}\" --check",
+		"test:lint": "eslint --ext .ts ."
+	},
+	"repository": "https://github.com/ewanlyon/nodecg-sportscontrol.git",
+	"license": "MIT",
+	"devDependencies": {
+		"@babel/core": "^7.16.0",
+		"@babel/plugin-proposal-class-properties": "^7.16.0",
+		"@babel/preset-env": "^7.16.0",
+		"@mui/material": "^5.1.0",
+		"@types/mini-css-extract-plugin": "^2.4.0",
+		"@types/react-dom": "^17.0.11",
+		"@types/styled-components": "^5.1.15",
+		"@types/webpack-bundle-analyzer": "^4.4.1",
+		"@types/webpack-node-externals": "^2.5.3",
+		"clean-webpack-plugin": "^4.0.0",
+		"css-loader": "^6.5.1",
+		"eslint": "^7.32.0",
+		"eslint-plugin-react": "^7.26.1",
+		"eslint-plugin-react-hooks": "^4.2.0",
+		"file-loader": "^6.2.0",
+		"globby": "^11.0.4",
+		"html-webpack-plugin": "^5.5.0",
+		"mini-css-extract-plugin": "^2.4.4",
+		"prettier": "^2.4.1",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"styled-components": "^5.3.3",
+		"trash-cli": "^4.0.0",
+		"ts-loader": "^9.2.6",
+		"typescript": "^4.4.4",
+		"use-nodecg": "^0.4.0",
+		"webpack": "^5.62.1",
+		"webpack-bundle-analyzer": "^4.5.0",
+		"webpack-cli": "^4.9.1",
+		"webpack-merge": "^5.8.0",
+		"webpack-node-externals": "^3.0.0",
+		"webpackbar": "^5.0.2"
+	}
+}
