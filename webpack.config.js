@@ -117,4 +117,4 @@ const extensions = merge(base, {
 	plugins: [...(isWatch ? [] : [new WebpackBar({ name: 'extension' })])],
 });
 
-module.exports = [browser('graphics'), extensions];
+module.exports = [browser('dashboard'), extensions];

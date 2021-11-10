@@ -12,6 +12,8 @@ module.exports = (nodecg: any) => {
 };
 
 async function init() {
-	const nodecg = nodecgApiContext.get();
-	nodecg.log.info('Extensions working');
+	require('./replicants');
+	require('./team-import-export');
+	require('./matches');
+	require('./tournament');
 }

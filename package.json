@@ -20,11 +20,66 @@
 		"compatibleRange": "^1.8.1",
 		"dashboardPanels": [
 			{
-				"name": "dashboard",
-				"title": "Dashboard",
+				"name": "teampresetcreator",
+				"title": "Team/Player Creator",
 				"width": 2,
-				"headerColor": "#2d4e8a",
-				"file": "test-dash.html"
+				"file": "team-preset-creator.html",
+				"workspace": "Setup"
+			},
+			{
+				"name": "schedule",
+				"title": "Schedule",
+				"width": 5,
+				"file": "schedule.html",
+				"workspace": "Setup"
+			},
+			{
+				"name": "tournament",
+				"title": "Tournament",
+				"file": "tournament.html",
+				"fullbleed": true
+			}
+		],
+		"assetCategories": [
+			{
+				"name": "teamimages",
+				"title": "Team Logo",
+				"allowedTypes": [
+					"jpg",
+					"jpeg",
+					"gif",
+					"png",
+					"svg"
+				]
+			},
+			{
+				"name": "playerIcons",
+				"title": "Player Icons",
+				"allowedTypes": [
+					"jpg",
+					"jpeg",
+					"gif",
+					"png",
+					"svg"
+				]
+			},
+			{
+				"name": "tournamentLogos",
+				"title": "Tournament Logos",
+				"allowedTypes": [
+					"jpg",
+					"jpeg",
+					"gif",
+					"png",
+					"svg"
+				]
+			},
+			{
+				"name": "teamPreset",
+				"title": "Team Preset",
+				"allowedTypes": [
+					"json"
+				]
 			}
 		]
 	},
@@ -42,10 +97,15 @@
 		"@babel/core": "^7.16.0",
 		"@babel/plugin-proposal-class-properties": "^7.16.0",
 		"@babel/preset-env": "^7.16.0",
+		"@emotion/react": "^11.5.0",
+		"@emotion/styled": "^11.3.0",
 		"@mui/material": "^5.1.0",
+		"@types/lodash": "^4.14.176",
 		"@types/mini-css-extract-plugin": "^2.4.0",
+		"@types/react-beautiful-dnd": "^13.1.2",
 		"@types/react-dom": "^17.0.11",
 		"@types/styled-components": "^5.1.15",
+		"@types/uuid": "^8.3.1",
 		"@types/webpack-bundle-analyzer": "^4.4.1",
 		"@types/webpack-node-externals": "^2.5.3",
 		"clean-webpack-plugin": "^4.0.0",
@@ -59,7 +119,9 @@
 		"mini-css-extract-plugin": "^2.4.4",
 		"prettier": "^2.4.1",
 		"react": "^17.0.2",
+		"react-beautiful-dnd": "^13.1.0",
 		"react-dom": "^17.0.2",
+		"react-twemoji": "^0.3.0",
 		"styled-components": "^5.3.3",
 		"trash-cli": "^4.0.0",
 		"ts-loader": "^9.2.6",
@@ -71,5 +133,9 @@
 		"webpack-merge": "^5.8.0",
 		"webpack-node-externals": "^3.0.0",
 		"webpackbar": "^5.0.2"
+	},
+	"dependencies": {
+		"lodash": "^4.17.21",
+		"uuid": "^8.3.2"
 	}
 }
