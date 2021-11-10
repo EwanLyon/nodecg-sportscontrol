@@ -26,13 +26,6 @@
 				"headerColor": "#2d4e8a",
 				"file": "test-dash.html"
 			}
-		],
-		"graphics": [
-			{
-				"file": "test-graphic.html",
-				"width": 1920,
-				"height": 1080
-			}
 		]
 	},
 	"scripts": {

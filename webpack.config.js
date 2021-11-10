@@ -36,7 +36,6 @@ const browser = (folderName) => {
 	});
 
 	return merge(base, {
-		// @ts-ignore
 		entry,
 		output: {
 			path: path.resolve(__dirname, folderName),
@@ -87,24 +86,14 @@ const browser = (folderName) => {
 				openAnalyzer: false,
 				analyzerMode: 'static',
 				reportFilename: path.resolve(__dirname, `bundle-analyzer/${folderName}.html`),
+				logLevel: 'silent'
 			}),
 			...(isWatch ? [] : [new WebpackBar({ name: folderName })]),
-		],
-		optimization: {
-			splitChunks: {
-				chunks: 'all',
-				cacheGroups: {
-					common: { minChunks: files.length },
-					vendors: false,
-					default: false,
-				},
-			},
-		},
+		]
 	});
 };
 
 const extensions = merge(base, {
-	// @ts-ignore
 	target: 'node',
 	node: false,
 	entry: path.resolve(__dirname, 'src/extension/index.ts'),
@@ -128,4 +117,4 @@ const extensions = merge(base, {
 	plugins: [...(isWatch ? [] : [new WebpackBar({ name: 'extension' })])],
 });
 
-module.exports = [browser('graphics'), browser('dashboard'), extensions];
+module.exports = [browser('graphics'), extensions];
