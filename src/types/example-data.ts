@@ -12,7 +12,7 @@ import {
 import { GameSettings } from './game-settings';
 import { BundleStatus } from './bundle-status';
 import { PlayerDataAll, TeamData as ITeamData } from './extra-data';
-import { TeamsPreset } from './team-preset';
+import { TeamsPreset } from './team';
 import { MapPlayerData } from './map-player';
 
 export const match: Map = {

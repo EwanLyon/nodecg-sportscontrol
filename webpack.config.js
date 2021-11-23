@@ -76,6 +76,7 @@ const browser = (folderName) => {
 						filename: `${entryName}.html`,
 						chunks: [entryName],
 						template: `./src/${folderName}/template.html`,
+						title: entryName,
 					}),
 			),
 			new MiniCssExtractPlugin({

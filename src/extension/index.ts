@@ -13,7 +13,9 @@ module.exports = (nodecg: any) => {
 
 async function init() {
 	require('./replicants');
-	require('./team-import-export');
+	require('./players');
+	require('./teams');
+	require('./file-io');
 	require('./matches');
 	require('./tournament');
 }

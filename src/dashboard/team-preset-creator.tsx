@@ -11,6 +11,7 @@ import { theme } from './theme';
 import { PlayersList } from './teams-players/players-list';
 import { PlayerCreator } from './teams-players/player-creator';
 import { TeamsCreator } from './teams-players/teams-creator';
+import { TeamsList } from './teams-players/teams-list';
 
 export const TeamPresetCreator: React.FC = () => {
 	const [currentTab, setCurrentTab] = useState(0);
@@ -35,7 +36,9 @@ export const TeamPresetCreator: React.FC = () => {
 			<div hidden={currentTab !== 1}>
 				<PlayerCreator />
 			</div>
-			<div hidden={currentTab !== 2}></div>
+			<div hidden={currentTab !== 2}>
+				<TeamsList />
+			</div>
 			<div hidden={currentTab !== 3}>
 				<TeamsCreator />
 			</div>

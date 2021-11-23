@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { theme } from './theme';
 import { useReplicant } from 'use-nodecg';
 
-import { TeamsPreset } from '../types/team-preset';
+import { TeamsPreset } from '../types/team';
 import { Match, Matches, NewMatch } from '../types/matches';
 
 import {

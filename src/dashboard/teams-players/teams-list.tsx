@@ -2,52 +2,47 @@ import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { DataEditorContainer, DataEditor, GridColumn, GridCell, GridCellKind } from '@glideapps/glide-data-grid';
 import { useReplicant } from 'use-nodecg';
+import DataGrid from 'react-data-grid';
 
 import { tableTheme } from '../theme';
 
-import { Player } from '../../types/player';
+import { Team } from '../../types/team';
 
-const PlayersListContainer = styled.div``;
+const TeamsListContainer = styled.div``;
 
 interface Props {
 	className?: string;
 	style?: React.CSSProperties;
 }
 
-
-
-export const PlayersList: React.FC<Props> = (props: Props) => {
-	const [playersRep] = useReplicant<Player[]>('players', []);
+export const TeamsList: React.FC<Props> = (props: Props) => {
+	const [teamsRep] = useReplicant<Team[]>('teams', []);
 	const columns: GridColumn[] = [
 		{ title: 'ID', width: 100, hasMenu: false },
 		{ title: 'Name', width: 100 },
-		{ title: 'Image', width: 100 },
-		{ title: 'Nickname', width: 100 },
+		{ title: 'Logo', width: 100 },
+		{ title: 'Short Name', width: 100 },
 		{ title: 'Country', width: 100 },
-		{ title: 'Team', width: 100 },
 	];
 
-	function getPlayerCells([col, row]: readonly [number, number]): GridCell {
-		if (!playersRep)
+	function getTeamCells([col, row]: readonly [number, number]): GridCell {
+		if (!teamsRep)
 			return { data: 'Loading', kind: GridCellKind.Text, allowOverlay: true, displayData: 'Loading' };
 		let data: string | undefined = "";
 		switch (col) {
 			case 0:
-				return { data: playersRep[row].id, kind: GridCellKind.RowID, allowOverlay: false };
+				return { data: teamsRep[row].id, kind: GridCellKind.RowID, allowOverlay: false };
 			case 1:
-				data = playersRep[row].name;
+				data = teamsRep[row].name;
 				break;
 			case 2:
-				data = playersRep[row].image;
+				data = teamsRep[row].logo;
 				break;
 			case 3:
-				data = playersRep[row].nickname;
+				data = teamsRep[row].shortname;
 				break;
 			case 4:
-				data = playersRep[row].country;
-				break;
-			case 5:
-				data = playersRep[row].team;
+				data = teamsRep[row].country;
 				break;
 
 			default:
@@ -58,13 +53,13 @@ export const PlayersList: React.FC<Props> = (props: Props) => {
 	}
 
 	return (
-		<PlayersListContainer className={props.className} style={props.style}>
+		<TeamsListContainer className={props.className} style={props.style}>
 			<ThemeProvider theme={tableTheme}>
 				<DataEditorContainer width={530} height={300}>
-					<DataEditor rows={playersRep.length} columns={columns} getCellContent={getPlayerCells} />
+					<DataEditor rows={teamsRep.length} columns={columns} getCellContent={getTeamCells} />
 				</DataEditorContainer>
 			</ThemeProvider>
 			<div id="portal" style={{ position: 'fixed', left: 0, top: 0, zIndex: 9999 }} />
-		</PlayersListContainer>
+		</TeamsListContainer>
 	);
 };

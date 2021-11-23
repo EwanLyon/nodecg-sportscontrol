@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useReplicant } from 'use-nodecg';
 import { Asset } from '../../types/nodecg';
-import { TeamsPreset } from '../../types/team-preset';
+import { Team } from '../../types/team';
 
 const TeamsCreatorContainer = styled.div``;
 
@@ -14,16 +14,16 @@ interface Props {
 
 export const TeamsCreator: React.FC<Props> = (props: Props) => {
 	const [teamImagesRep] = useReplicant<Asset[]>('assets:teamimages', []);
-	const [teamPresetsRep] = useReplicant<TeamsPreset | undefined>('teamPlayerPreset', undefined);
+	const [teamsRep] = useReplicant<Team[]>('teams', []);
 	const [localLogo, setLocalLogo] = useState('');
 	const [localTeamName, setLocalTeamName] = useState('');
-	const [localTeamAlias, setLocalTeamAlias] = useState('');
-	const [localTeamPresetAlias, setLocalTeamPresetAlias] = useState('');
+	const [localTeamShortName, setLocalTeamShortName] = useState('');
+	const [localTeamPresetName, setLocalTeamPresetName] = useState('');
 
 	// Already done teams
-	const teamPresetList = Object.entries(teamPresetsRep?.teams || {}).map(([key, team]) => {
+	const teamPresetList = teamsRep.map((team) => {
 		return (
-			<MenuItem key={key} value={team.alias}>
+			<MenuItem key={team.name} value={team.shortname}>
 				<img
 					style={{
 						height: 50,
@@ -60,12 +60,12 @@ export const TeamsCreator: React.FC<Props> = (props: Props) => {
 		console.log('Adding team: ' + localTeamName);
 		nodecg.sendMessage('newTeam', {
 			name: localTeamName,
-			alias: localTeamAlias,
+			alias: localTeamShortName,
 			logo: localLogo,
-		});
+		} as Team);
 
-		setLocalTeamAlias('');
-		setLocalTeamPresetAlias('');
+		setLocalTeamShortName('');
+		setLocalTeamPresetName('');
 		setLocalTeamName('');
 		setLocalLogo('');
 	}
@@ -77,15 +77,15 @@ export const TeamsCreator: React.FC<Props> = (props: Props) => {
 
 	// Fill in team blanks
 	useEffect(() => {
-		if (localTeamPresetAlias) {
-			const foundTeamPreset = teamPresetsRep?.teams[localTeamName];
+		if (localTeamPresetName) {
+			const foundTeamPreset = teamsRep.find(team => team.name === localTeamName);
 			if (foundTeamPreset) {
-				setLocalTeamAlias(foundTeamPreset.alias);
+				setLocalTeamShortName(foundTeamPreset.shortname ?? '');
 				setLocalTeamName(foundTeamPreset.name);
-				setLocalLogo(foundTeamPreset.logo || '');
+				setLocalLogo(foundTeamPreset.logo ?? '');
 			}
 		}
-	}, [localTeamPresetAlias, teamPresetsRep?.teams, localTeamName]);
+	}, [localTeamPresetName, teamsRep, localTeamName]);
 
 	return (
 		<TeamsCreatorContainer className={props.className} style={props.style}>
@@ -93,8 +93,8 @@ export const TeamsCreator: React.FC<Props> = (props: Props) => {
 				<InputLabel id="teamPresetsLabel">Team</InputLabel>
 				<Select
 					labelId="teamPresetsLabel"
-					value={localTeamPresetAlias}
-					onChange={(e) => setLocalTeamPresetAlias(e.target.value as string)}>
+					value={localTeamPresetName}
+					onChange={(e) => setLocalTeamPresetName(e.target.value as string)}>
 					<MenuItem key={-1} value={''}>
 						<em>Create new team</em>
 					</MenuItem>
@@ -120,11 +120,11 @@ export const TeamsCreator: React.FC<Props> = (props: Props) => {
 			<TextField
 				required
 				label="Alias"
-				value={localTeamAlias}
-				onChange={(e) => setLocalTeamAlias(e.target.value as string)}
+				value={localTeamShortName}
+				onChange={(e) => setLocalTeamShortName(e.target.value as string)}
 				fullWidth
 			/>
-			<Button fullWidth onClick={AddTeam} variant="contained" disabled={!localTeamName || !localTeamAlias}>
+			<Button fullWidth onClick={AddTeam} variant="contained" disabled={!localTeamName || !localTeamShortName}>
 				Add Team
 			</Button>
 

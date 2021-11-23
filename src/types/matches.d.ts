@@ -1,4 +1,4 @@
-import { TeamMeta } from './team-preset';
+import { TeamMeta } from './team';
 
 export type Matches = Match[];
 

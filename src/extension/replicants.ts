@@ -6,7 +6,8 @@ import {
 	CSGOAllplayer,
 	Map,
 } from '../types/csgo-gsi';
-import { TeamsPreset } from '../types/team-preset';
+import { Team } from '../types/team';
+import { Player } from '../types/player';
 import { Tournaments } from '../types/tournament';
 
 const nodecg = nodecgApiContext.get();
@@ -44,7 +45,8 @@ nodecg.Replicant<TeamData>('teamTwo', {
 
 /* Team data */
 
-nodecg.Replicant<TeamsPreset>('teamPlayerPreset', { defaultValue: { teams: {}, players: {} }, persistent: true });
+nodecg.Replicant<Player[]>('players', {defaultValue: [], persistent: true});
+nodecg.Replicant<Team[]>('teams', {defaultValue: [], persistent: true});
 
 /* Tournaments */
 

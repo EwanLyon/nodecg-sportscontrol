@@ -1,9 +1,9 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useReplicant } from 'use-nodecg';
 import { Asset } from '../../types/nodecg';
-import { TeamsPreset } from '../../types/team-preset';
+import { Player } from '../../types/player';
 import { flagList } from '../atoms/flag-list';
 // @ts-ignore
 import Twemoji from 'react-twemoji';
@@ -26,15 +26,14 @@ interface Props {
 
 export const PlayerCreator: React.FC<Props> = (props: Props) => {
 	const [profilePicturesRep] = useReplicant<Asset[]>('assets:playerIcons', []);
-	const [teamPresetsRep] = useReplicant<TeamsPreset | undefined>('teamPlayerPreset', undefined);
-	const [steamId, setSteamId] = useState('');
+	const [playersRep] = useReplicant<Player[]>('teams', []);
 	const [localName, setLocalName] = useState('');
-	const [localPfp, setLocalPfp] = useState('');
+	const [localImage, setLocalImage] = useState('');
 	const [localCountry, setLocalCountry] = useState('');
 
-	const playerPresetList = Object.entries(teamPresetsRep?.players || {}).map(([key, player]) => {
+	const playerPresetList = playersRep.map((player) => {
 		return (
-			<MenuItem key={key} value={player.steamId}>
+			<MenuItem key={player.name} value={player.name}>
 				<img
 					style={{
 						height: 50,
@@ -42,11 +41,11 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 						objectFit: 'scale-down',
 						marginRight: 10,
 					}}
-					src={player.profilePicture}
+					src={player.image}
 				/>
 				<Grid container>
-					<span style={{ fontSize: 10, color: '#777' }}>{player.steamId}</span>
-					{player.realName}
+					<span style={{ fontSize: 10, color: '#777' }}>{player.nickname}</span>
+					{player.name}
 				</Grid>
 			</MenuItem>
 		);
@@ -81,14 +80,12 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 		console.log('Adding player: ' + localName);
 		nodecg.sendMessage('newPlayer', {
 			name: localName,
-			steamId,
-			pfp: localPfp,
+			image: localImage,
 			country: localCountry,
-		});
+		} as Player);
 
 		setLocalName('');
-		setSteamId('');
-		setLocalPfp('');
+		setLocalImage('');
 		setLocalCountry('');
 	}
 
@@ -97,20 +94,20 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 		nodecg.sendMessage('exportTeams');
 	}
 
-	useEffect(() => {
-		if (steamId) {
-			const foundPlayerPreset = teamPresetsRep?.players[steamId];
-			if (foundPlayerPreset) {
-				setLocalName(foundPlayerPreset.realName || '');
-				setLocalPfp(foundPlayerPreset.profilePicture || '');
-				setLocalCountry(foundPlayerPreset.country || '');
-			}
-		} else {
-			setLocalName('');
-			setLocalPfp('');
-			setLocalCountry('');
-		}
-	}, [steamId, teamPresetsRep?.players]);
+	// useEffect(() => {
+	// 	if (steamId) {
+	// 		const foundPlayerPreset = teamPresetsRep?.players[steamId];
+	// 		if (foundPlayerPreset) {
+	// 			setLocalName(foundPlayerPreset.realName || '');
+	// 			setLocalPfp(foundPlayerPreset.profilePicture || '');
+	// 			setLocalCountry(foundPlayerPreset.country || '');
+	// 		}
+	// 	} else {
+	// 		setLocalName('');
+	// 		setLocalPfp('');
+	// 		setLocalCountry('');
+	// 	}
+	// }, [steamId, teamPresetsRep?.players]);
 
 	return (
 		<PlayerCreatorContainer className={props.className} style={props.style}>
@@ -118,21 +115,14 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 				<InputLabel id="playerPresetsLabel">Player</InputLabel>
 				<Select
 					labelId="playerPresetsLabel"
-					value={steamId}
-					onChange={(e) => setSteamId(e.target.value as string)}>
+					value={localName}
+					onChange={(e) => setLocalName(e.target.value as string)}>
 					<MenuItem key={-1} value={''}>
 						<em>Create new player</em>
 					</MenuItem>
 					{playerPresetList}
 				</Select>
 			</FormControl>
-			<TextField
-				required
-				label="SteamID"
-				value={steamId}
-				onChange={(e) => setSteamId(e.target.value as string)}
-				fullWidth
-			/>
 			<TextField
 				label="Name"
 				value={localName}
@@ -141,7 +131,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 			/>
 			<FormControl variant="filled" fullWidth>
 				<InputLabel id="pfpLabel">Profile Picture</InputLabel>
-				<Select labelId="pfpLabel" value={localPfp} onChange={(e) => setLocalPfp(e.target.value as string)}>
+				<Select labelId="pfpLabel" value={localImage} onChange={(e) => setLocalImage(e.target.value as string)}>
 					<MenuItem key={-1} value={''}>
 						<em>No Profile Picture</em>
 					</MenuItem>
@@ -157,7 +147,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 					{flagListMap}
 				</Select>
 			</FormControl>
-			<Button fullWidth onClick={AddPlayer} variant="contained" disabled={!steamId}>
+			<Button fullWidth onClick={AddPlayer} variant="contained" disabled={!localName}>
 				Add Player
 			</Button>
 
