@@ -17,3 +17,15 @@ nodecg.listenFor('newTeam', (data: Team) => {
 
 	nodecg.sendMessage('newTeam:Response');
 });
+
+nodecg.listenFor('updateTeam', (data: Team) => {
+	nodecg.log.info('Updating ' + data.name);
+	
+	const teamIndex = teamsRep.value.findIndex(team => team.id === data.id);
+
+	if (teamIndex > -1) {
+		teamsRep.value[teamIndex] = data;
+	} else {
+		nodecg.log.error('Could not find Team: ' + JSON.stringify(data));
+	}
+});

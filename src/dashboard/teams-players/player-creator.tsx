@@ -1,5 +1,5 @@
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useReplicant } from 'use-nodecg';
 import { Asset } from '../../types/nodecg';
@@ -8,9 +8,13 @@ import { flagList } from '../atoms/flag-list';
 // @ts-ignore
 import Twemoji from 'react-twemoji';
 
-const PlayerCreatorContainer = styled.div``;
+import NoImage from '../atoms/NoImage.png';
 
-
+const PlayerCreatorContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+`;
 
 const TwemojiMenuItem = styled(Twemoji)`
 	& > .emoji {
@@ -26,14 +30,16 @@ interface Props {
 
 export const PlayerCreator: React.FC<Props> = (props: Props) => {
 	const [profilePicturesRep] = useReplicant<Asset[]>('assets:playerIcons', []);
-	const [playersRep] = useReplicant<Player[]>('teams', []);
+	const [playersRep] = useReplicant<Player[]>('players', []);
+	const [localID, setLocalID] = useState('');
 	const [localName, setLocalName] = useState('');
 	const [localImage, setLocalImage] = useState('');
 	const [localCountry, setLocalCountry] = useState('');
+	const [localNickname, setLocalNickname] = useState('');
 
 	const playerPresetList = playersRep.map((player) => {
 		return (
-			<MenuItem key={player.name} value={player.name}>
+			<MenuItem key={player.id} value={player.id}>
 				<img
 					style={{
 						height: 50,
@@ -41,7 +47,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 						objectFit: 'scale-down',
 						marginRight: 10,
 					}}
-					src={player.image}
+					src={player.image || NoImage}
 				/>
 				<Grid container>
 					<span style={{ fontSize: 10, color: '#777' }}>{player.nickname}</span>
@@ -52,7 +58,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 	});
 	
 	// Profile Pics
-	const profilePicsMap = profilePicturesRep.map((pfp) => {
+	const imageMap = profilePicturesRep.map((pfp) => {
 		return (
 			<MenuItem key={pfp.base} value={pfp.url}>
 				<img style={{ height: 50, width: 'auto', objectFit: 'scale-down', marginRight: 10 }} src={pfp.url} />
@@ -79,35 +85,52 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 	function AddPlayer(): void {
 		console.log('Adding player: ' + localName);
 		nodecg.sendMessage('newPlayer', {
+			id: 'New',
 			name: localName,
 			image: localImage,
-			country: localCountry,
+			countryflag: localCountry,
+			nickname: localNickname,
 		} as Player);
 
+		ResetValues();
+	}
+
+	function UpdatePlayer(): void {
+		console.log('Updating player: ' + localName);
+		nodecg.sendMessage('updatePlayer', {
+			id: localID,
+			name: localName,
+			image: localImage,
+			countryflag: localCountry,
+			nickname: localNickname,
+		} as Player);
+
+		ResetValues();
+	}
+
+	// function Save(): void {
+	// 	console.log('Saving');
+	// 	nodecg.sendMessage('exportTeams');
+	// }
+
+	function ResetValues() {
+		setLocalID('');
 		setLocalName('');
 		setLocalImage('');
 		setLocalCountry('');
+		setLocalNickname('');
 	}
 
-	function Save(): void {
-		console.log('Saving');
-		nodecg.sendMessage('exportTeams');
-	}
-
-	// useEffect(() => {
-	// 	if (steamId) {
-	// 		const foundPlayerPreset = teamPresetsRep?.players[steamId];
-	// 		if (foundPlayerPreset) {
-	// 			setLocalName(foundPlayerPreset.realName || '');
-	// 			setLocalPfp(foundPlayerPreset.profilePicture || '');
-	// 			setLocalCountry(foundPlayerPreset.country || '');
-	// 		}
-	// 	} else {
-	// 		setLocalName('');
-	// 		setLocalPfp('');
-	// 		setLocalCountry('');
-	// 	}
-	// }, [steamId, teamPresetsRep?.players]);
+	useEffect(() => {
+		if (localID) {
+			const foundPlayerPreset = playersRep.find(player => player.id === localID);
+			if (foundPlayerPreset) {
+				setLocalName(foundPlayerPreset.name ?? '');
+				setLocalImage(foundPlayerPreset.image ?? '');
+				setLocalCountry(foundPlayerPreset.countryflag ?? '');
+			}
+		}
+	}, [localID, playersRep]);
 
 	return (
 		<PlayerCreatorContainer className={props.className} style={props.style}>
@@ -115,8 +138,8 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 				<InputLabel id="playerPresetsLabel">Player</InputLabel>
 				<Select
 					labelId="playerPresetsLabel"
-					value={localName}
-					onChange={(e) => setLocalName(e.target.value as string)}>
+					value={localID}
+					onChange={(e) => setLocalID(e.target.value)}>
 					<MenuItem key={-1} value={''}>
 						<em>Create new player</em>
 					</MenuItem>
@@ -126,16 +149,16 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 			<TextField
 				label="Name"
 				value={localName}
-				onChange={(e) => setLocalName(e.target.value as string)}
+				onChange={(e) => setLocalName(e.target.value)}
 				fullWidth
 			/>
 			<FormControl variant="filled" fullWidth>
-				<InputLabel id="pfpLabel">Profile Picture</InputLabel>
-				<Select labelId="pfpLabel" value={localImage} onChange={(e) => setLocalImage(e.target.value as string)}>
+				<InputLabel id="imageLabel">Image</InputLabel>
+				<Select labelId="imageLabel" value={localImage} onChange={(e) => setLocalImage(e.target.value)}>
 					<MenuItem key={-1} value={''}>
-						<em>No Profile Picture</em>
+						<em>No Image</em>
 					</MenuItem>
-					{profilePicsMap}
+					{imageMap}
 				</Select>
 			</FormControl>
 			<FormControl variant="filled" fullWidth>
@@ -143,17 +166,23 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 				<Select
 					labelId="countryLabel"
 					value={localCountry}
-					onChange={(e) => setLocalCountry(e.target.value as string)}>
+					onChange={(e) => setLocalCountry(e.target.value)}>
 					{flagListMap}
 				</Select>
 			</FormControl>
-			<Button fullWidth onClick={AddPlayer} variant="contained" disabled={!localName}>
-				Add Player
+			<TextField
+				label="Nickname"
+				value={localNickname}
+				onChange={(e) => setLocalNickname(e.target.value)}
+				fullWidth
+			/>
+			<Button fullWidth onClick={localID ? UpdatePlayer : AddPlayer} variant="contained" disabled={!localName}>
+				{localID ? `Update ${localName}` : 'Add Player'}
 			</Button>
 
-			<Button fullWidth onClick={Save} variant="contained">
+			{/* <Button fullWidth onClick={Save} variant="contained">
 				Save Players and Teams
-			</Button>
+			</Button> */}
 		</PlayerCreatorContainer>
 	);
 };

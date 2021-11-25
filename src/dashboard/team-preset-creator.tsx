@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 /* eslint-disable-next-line */
 // @ts-ignore
 import Twemoji from 'react-twemoji';
-import { render } from 'react-dom';
+import * as ReactDOM from 'react-dom';
+import {} from 'react-dom/next';
 
 import { Tabs, Tab } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
@@ -46,4 +47,4 @@ export const TeamPresetCreator: React.FC = () => {
 	);
 };
 
-render(<TeamPresetCreator />, document.getElementById('root'));
+ReactDOM.createRoot(document.getElementById('root')!).render(<TeamPresetCreator />);

@@ -6,15 +6,10 @@ const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-// import { basename, resolve as path.resolve } from 'path';
-// import { globbySync } from 'globby';
-// import WebpackBar from 'webpackbar';
-// import { merge } from 'webpack-merge';
-// import nodeExternals from 'webpack-node-externals';
-// import HtmlWebpackPlugin from 'html-webpack-plugin';
-// import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-// import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+const keysTransformer = require('ts-transformer-keys/transformer').default;
+const ReactRefreshTypeScript = require('react-refresh-typescript');
+const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const webpack = require('webpack');
 
 const isProduction = process.env['NODE_ENV'] === 'production';
 const isWatch = Boolean(process.env['WEBPACK_WATCH']);
@@ -34,13 +29,17 @@ const browser = (folderName) => {
 	files.forEach((file) => {
 		entry[path.basename(file, '.tsx')] = file;
 	});
-
+	
 	return merge(base, {
 		entry,
 		output: {
 			path: path.resolve(__dirname, folderName),
 			filename: '[name].js',
 			publicPath: '',
+			clean: true
+		},
+		devServer: {
+			hot: true
 		},
 		module: {
 			rules: [
@@ -50,12 +49,15 @@ const browser = (folderName) => {
 					options: {
 						transpileOnly: true,
 						configFile: path.resolve(__dirname, `src/${folderName}/tsconfig.json`),
+						getCustomTransformers: () => ({
+							before: [isWatch && ReactRefreshTypeScript()].filter(Boolean)
+						})
 					},
 				},
 				{
 					test: /\.(png|woff2?|webm|gif|svg)$/,
 					loader: 'file-loader',
-					options: { name: '[name].[hash].[ext]' },
+					options: { name: '[name].[hash].[ext]' }
 				},
 				{
 					test: /\.css$/,
@@ -89,8 +91,11 @@ const browser = (folderName) => {
 				reportFilename: path.resolve(__dirname, `bundle-analyzer/${folderName}.html`),
 				logLevel: 'silent'
 			}),
-			...(isWatch ? [] : [new WebpackBar({ name: folderName })]),
-		]
+			...(isWatch ? [new webpack.HotModuleReplacementPlugin(), new ReactRefreshPlugin()] : [new WebpackBar({ name: folderName })]),
+		],
+		optimization: {
+			runtimeChunk: 'single'
+		}
 	});
 };
 
@@ -110,6 +115,11 @@ const extensions = merge(base, {
 				loader: 'ts-loader',
 				options: {
 					configFile: path.resolve(__dirname, 'src/extension/tsconfig.json'),
+					getCustomTransformers: program => ({
+						before: [
+							keysTransformer(program)
+						]
+					})
 				},
 			},
 		],

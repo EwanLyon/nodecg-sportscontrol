@@ -2,8 +2,7 @@
 	"extends": "../../tsconfig",
 	"compilerOptions": {
 		"noEmit": true,
-
-		"jsx": "react",
+		"jsx": "react-jsx",
 		"module": "esnext",
 		"lib": ["esnext", "dom"]
 	},
@@ -11,5 +10,5 @@
 		"**/*.ts",
 		"**/*.tsx",
 		"../../../../types/browser.d.ts"
-	]
+	],
 }

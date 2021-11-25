@@ -3,6 +3,6 @@ export interface Player {
 	name: string;
 	nickname?: string;
 	image?: string;
-	country?: string;
+	countryflag?: string;
 	team?: string;
 }

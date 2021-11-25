@@ -3,5 +3,5 @@ export interface Team {
 	shortname?: string;
 	name: string;
 	logo?: string;
-	country?: string;
+	countryflag?: string;
 }

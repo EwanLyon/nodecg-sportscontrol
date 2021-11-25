@@ -1,5 +1,4 @@
 import * as nodecgApiContext from './nodecg-api-context';
-
 import { PlayerDataAll, TeamData } from '../types/extra-data';
 import { Match, Matches } from '../types/matches';
 import {
@@ -9,6 +8,7 @@ import {
 import { Team } from '../types/team';
 import { Player } from '../types/player';
 import { Tournaments } from '../types/tournament';
+import { keys } from 'ts-transformer-keys';
 
 const nodecg = nodecgApiContext.get();
 
@@ -47,6 +47,10 @@ nodecg.Replicant<TeamData>('teamTwo', {
 
 nodecg.Replicant<Player[]>('players', {defaultValue: [], persistent: true});
 nodecg.Replicant<Team[]>('teams', {defaultValue: [], persistent: true});
+
+// Replicants to display columns on the dashboard + allows plugins to add custom columns
+nodecg.Replicant<string[]>('playerColumns', {defaultValue: keys<Player>(), persistent: false});
+nodecg.Replicant<string[]>('teamColumns', {defaultValue: keys<Team>(), persistent: false});
 
 /* Tournaments */
 
