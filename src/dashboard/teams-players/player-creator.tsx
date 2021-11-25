@@ -36,6 +36,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 	const [localImage, setLocalImage] = useState('');
 	const [localCountry, setLocalCountry] = useState('');
 	const [localNickname, setLocalNickname] = useState('');
+	const [localTeam, setLocalTeam] = useState('');
 
 	const playerPresetList = playersRep.map((player) => {
 		return (
@@ -50,7 +51,6 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 					src={player.image || NoImage}
 				/>
 				<Grid container>
-					<span style={{ fontSize: 10, color: '#777' }}>{player.nickname}</span>
 					{player.name}
 				</Grid>
 			</MenuItem>
@@ -90,6 +90,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 			image: localImage,
 			countryflag: localCountry,
 			nickname: localNickname,
+			team: localTeam,
 		} as Player);
 
 		ResetValues();
@@ -103,6 +104,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 			image: localImage,
 			countryflag: localCountry,
 			nickname: localNickname,
+			team: localTeam,
 		} as Player);
 
 		ResetValues();
@@ -174,6 +176,12 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 				label="Nickname"
 				value={localNickname}
 				onChange={(e) => setLocalNickname(e.target.value)}
+				fullWidth
+			/>
+			<TextField
+				label="Team"
+				value={localTeam}
+				onChange={(e) => setLocalTeam(e.target.value)}
 				fullWidth
 			/>
 			<Button fullWidth onClick={localID ? UpdatePlayer : AddPlayer} variant="contained" disabled={!localName}>
