@@ -153,6 +153,7 @@ export const PlayerCreator: React.FC<Props> = (props: Props) => {
 				value={localName}
 				onChange={(e) => setLocalName(e.target.value)}
 				fullWidth
+				required
 			/>
 			<FormControl variant="filled" fullWidth>
 				<InputLabel id="imageLabel">Image</InputLabel>

@@ -1,6 +1,6 @@
 {
 	"name": "nodecg-sportscontrol",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "",
 	"homepage": "",
 	"author": {
@@ -85,7 +85,6 @@
 	},
 	"scripts": {
 		"build": "cross-env NODE_ENV=production webpack",
-		"dev:tsc": "yarn test:types -w --preserveWatchOutput",
 		"dev:webpack": "cross-env NODE_ENV=development WEBPACK_WATCH=true webpack",
 		"start": "node ../..",
 		"test:prettier": "prettier \"**/*.{ts,tsx,json,html,yml,css,scss,md}\" --check",
@@ -131,7 +130,6 @@
 		"react-responsive-carousel": "^3.2.22",
 		"react-twemoji": "^0.3.0",
 		"styled-components": "^5.3.3",
-		"trash-cli": "^4.0.0",
 		"ts-loader": "^9.2.6",
 		"ts-transformer-keys": "^0.4.3",
 		"typescript": "^4.4.4",
