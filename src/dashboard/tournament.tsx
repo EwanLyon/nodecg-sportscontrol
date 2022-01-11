@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { render } from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { useReplicant } from 'use-nodecg';
 import { theme } from './theme';
@@ -10,14 +10,7 @@ import {
 	DoubleElimination as IDoubleElimination,
 } from '../types/tournament';
 
-import {
-	Button,
-	FormControl,
-	InputLabel,
-	MenuItem,
-	Select,
-	ThemeProvider,
-} from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select, ThemeProvider } from '@mui/material';
 import { CreateTournament } from './fixture/create-tournament';
 import { SingleElimination } from './fixture/single-elimination';
 import { DoubleElimination } from './fixture/double-elimination';
@@ -32,6 +25,24 @@ const SelectionMenu = styled.div`
 	gap: 16px;
 `;
 
+const TournamentMetaContainer = styled.div`
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin-bottom: 1rem;
+`;
+
+const TournamentTitle = styled.span`
+	font-weight: bold;
+`;
+
+const TournamentMeta = styled.span``;
+const TournamentLogo = styled.img`
+	object-fit: contain;
+`;
+
 const Tournament: React.FC = () => {
 	const [tournamentsRep] = useReplicant<Tournaments>('tournaments', {});
 	const [selectedTournament, setSelectedTournament] = useState('');
@@ -43,9 +54,7 @@ const Tournament: React.FC = () => {
 		if (currentTournamentRep) {
 			setSelectedTournament(currentTournamentRep);
 		} else {
-			const mostRecentTournament = Object.keys(tournamentsRep)[
-				Object.keys(tournamentsRep).length - 1
-			];
+			const mostRecentTournament = Object.keys(tournamentsRep)[Object.keys(tournamentsRep).length - 1];
 			setSelectedTournament(mostRecentTournament);
 		}
 	}, [tournamentsRep, currentTournamentRep]);
@@ -128,10 +137,7 @@ const Tournament: React.FC = () => {
 				<Button variant="contained" onClick={handleCreateOpen}>
 					New Tournament
 				</Button>
-				<Button
-					variant="contained"
-					onClick={handleEditOpen}
-					disabled={!tournamentsRep[selectedTournament]}>
+				<Button variant="contained" onClick={handleEditOpen} disabled={!tournamentsRep[selectedTournament]}>
 					Edit Tournament
 				</Button>
 				<Button
@@ -142,6 +148,14 @@ const Tournament: React.FC = () => {
 				</Button>
 			</SelectionMenu>
 			<hr />
+			{tournamentsRep[selectedTournament] && (
+				<TournamentMetaContainer>
+					<TournamentLogo src={tournamentsRep[selectedTournament]?.logo} />
+					<TournamentTitle>{tournamentsRep[selectedTournament].name}</TournamentTitle>
+					<TournamentMeta>{tournamentsRep[selectedTournament].id}</TournamentMeta>
+					<TournamentMeta>{tournamentsRep[selectedTournament].fixture.type}</TournamentMeta>
+				</TournamentMetaContainer>
+			)}
 			{fixtureElement}
 			<CreateTournament onClose={handleClose} open={createTournamentDialog} />
 			<EditTournament
@@ -153,4 +167,4 @@ const Tournament: React.FC = () => {
 	);
 };
 
-render(<Tournament />, document.getElementById('root'));
+ReactDOM.createRoot(document.getElementById('root')!).render(<Tournament />);

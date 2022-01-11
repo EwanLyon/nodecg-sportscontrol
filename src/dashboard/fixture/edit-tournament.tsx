@@ -43,6 +43,10 @@ export const EditTournament: React.FC<Props> = (props: Props) => {
 	useEffect(() => {
 		if (!props.tournament) return;
 
+		setTournamentName(props.tournament.name);
+		setSelectedLogo(props.tournament.logo);
+		setSelectedFixture(props.tournament.fixture.type);
+
 		if (props.tournament.fixture.type === 'single-elimination') {
 			setFixtureTeams((props.tournament.fixture.matches[0].length * 2).toString());
 		} else if (props.tournament.fixture.type === 'double-elimination') {
@@ -95,7 +99,7 @@ export const EditTournament: React.FC<Props> = (props: Props) => {
 			aria-labelledby="create-tournament-dialog"
 			open={props.open}>
 			<DialogTitle id="create-tournament-dialog" style={{ minWidth: '25%' }}>
-				Create Tournament
+				Edit {props.tournament.name}
 			</DialogTitle>
 			<DialogContent dividers style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 				<TextField
