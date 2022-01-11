@@ -26,6 +26,20 @@ nodecg.listenFor('updateTeam', (data: Team) => {
 	if (teamIndex > -1) {
 		teamsRep.value[teamIndex] = data;
 	} else {
-		nodecg.log.error('Could not find Team: ' + JSON.stringify(data));
+		nodecg.log.error(`Could not find Team: ${JSON.stringify(data)}`);
 	}
 });
+
+nodecg.listenFor('deleteTeam', (id: string) => {
+	nodecg.log.info(`Deleting player: ${id}`);
+
+	const teamIndex = teamsRep.value.findIndex(team => team.id === id);
+
+
+	if (teamIndex > -1) {
+		teamsRep.value.splice(teamIndex, 1);
+	} else {
+		nodecg.log.error(`Could not find Team: ${id}`);
+	}
+});
+

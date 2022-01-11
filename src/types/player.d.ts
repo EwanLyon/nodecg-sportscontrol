@@ -5,4 +5,5 @@ export interface Player {
 	image?: string;
 	countryflag?: string;
 	team?: string;
+	selfTeam?: boolean;
 }

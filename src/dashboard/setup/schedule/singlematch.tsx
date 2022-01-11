@@ -1,17 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Match } from '../../../../types/matches';
-import { Team } from '../../../../types/team-preset';
+import { Match } from '../../../types/matches';
+import { Team } from '../../../types/team';
 
 import { GrabHandles } from '../../atoms/grabhandle';
-import { RedButton } from '../../atoms/styled-ui';
 import { FitText } from '../../atoms/fit-text';
 import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
-
-const RedButtonExtra = styled(RedButton)`
-	min-width: 44px;
-`;
+import { Button } from '@mui/material';
 
 const SingleMatchContainer = styled.div`
 	background: #40495f;
@@ -99,9 +95,9 @@ export const SingleMatch: React.FC<Props> = (props: Props) => {
 				}}>
 				{props.match.matchType}
 			</span>
-			<RedButtonExtra variant="contained" size="small" onClick={removeGame}>
+			<Button color="error" variant="contained" size="small" onClick={removeGame}>
 				‒
-			</RedButtonExtra>
+			</Button>
 		</SingleMatchContainer>
 	);
 };

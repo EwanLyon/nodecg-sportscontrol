@@ -52,8 +52,8 @@ nodecg.listenFor('prevMatch', () => {
 });
 
 nodecg.listenFor('createNewMatch', (newMatch: NewMatch) => {
-	const teamA = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamA));
-	const teamB = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamB));
+	const teamA = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamA))!;
+	const teamB = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamB))!;
 
 	const matchId = uuid();
 
@@ -112,6 +112,7 @@ nodecg.listenFor('updateMatchOrder', (newOrder: Matches) => {
 
 nodecg.listenFor('removeMatch', (id: string) => {
 	const matchIndex = matchesRep.value.findIndex((match) => match.id === id);
+	nodecg.log.info(`Removing match: ${id}`);
 
 	if (matchIndex === -1) {
 		nodecg.log.warn(`Could not find match: ${id} to remove.`);

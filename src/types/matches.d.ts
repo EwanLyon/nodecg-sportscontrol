@@ -1,4 +1,4 @@
-import { TeamMeta } from './team';
+import { Team } from './team';
 
 export type Matches = Match[];
 
@@ -11,8 +11,8 @@ export interface NewMatch {
 }
 
 export interface Match {
-	teamA: TeamMeta;
-	teamB: TeamMeta;
+	teamA: Team;
+	teamB: Team;
 	maps: MapInfo[];
 	status: string;
 	time: string;

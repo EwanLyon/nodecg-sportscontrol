@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { render } from 'react-dom';
+import * as ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { theme } from './theme';
 import { useReplicant } from 'use-nodecg';
 
-import { TeamsPreset } from '../types/team';
+import { Team } from '../types/team';
 import { Match, Matches, NewMatch } from '../types/matches';
 
 import {
@@ -15,6 +15,7 @@ import {
 	InputLabel,
 	TextField,
 	Chip,
+	Button,
 } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import {
@@ -26,11 +27,6 @@ import {
 	DropResult,
 } from 'react-beautiful-dnd';
 import { SingleMatch } from './setup/schedule/singlematch';
-import { GreenButton } from './atoms/styled-ui';
-
-const GreenButtonExtra = styled(GreenButton)`
-	min-width: 44px;
-`;
 
 const Divider = styled.div`
 	height: 1px;
@@ -51,9 +47,7 @@ const reorder = (list: unknown[], startIndex: number, endIndex: number) => {
 	return result;
 };
 
-const getItemStyle = (
-	draggableStyle: DraggingStyle | NotDraggingStyle | undefined,
-): React.CSSProperties => ({
+const getItemStyle = (draggableStyle: DraggingStyle | NotDraggingStyle | undefined): React.CSSProperties => ({
 	// Some basic styles to make the items look a bit nicer
 	userSelect: 'none',
 	margin: '0 0 6px 0',
@@ -63,7 +57,7 @@ const getItemStyle = (
 });
 
 const DashSchedule: React.FC = () => {
-	const [teamPresetsRep] = useReplicant<TeamsPreset | undefined>('teamPlayerPreset', undefined);
+	const [teamsRep] = useReplicant<Team[]>('teams', []);
 	const [matchesRep] = useReplicant<Matches>('matches', []);
 	const [currentMatchRep] = useReplicant<Match | undefined>('currentMatch', undefined);
 
@@ -72,9 +66,9 @@ const DashSchedule: React.FC = () => {
 	const [time, setTime] = useState('');
 	const [matchType, setMatchType] = useState('bo1');
 
-	const teamsList = Object.entries(teamPresetsRep?.teams ?? {}).map(([key, team]) => {
+	const teamsList = teamsRep.map((team) => {
 		return (
-			<MenuItem key={key} value={team.name}>
+			<MenuItem key={team.id} value={team.name}>
 				<img
 					style={{
 						height: 20,
@@ -168,34 +162,23 @@ const DashSchedule: React.FC = () => {
 						onClick={() => setMatchType('bo5')}
 						variant={matchType === 'bo5' ? 'filled' : 'outlined'}
 					/>
-					<GreenButtonExtra
-						variant="contained"
-						onClick={AddGame}
-						disabled={!teamA || !teamB}>
+					<Button variant="contained" onClick={AddGame} disabled={!teamA || !teamB}>
 						+
-					</GreenButtonExtra>
+					</Button>
 				</Grid>
 				<Divider />
 				<DragDropContext onDragEnd={onDragEnd}>
 					<Droppable droppableId="schedule">
 						{(provided) => (
-							<div
-								ref={provided.innerRef}
-								{...provided.droppableProps}
-								style={{ width: '100%' }}>
+							<div ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%' }}>
 								{matchesRep.map((match, index) => {
 									return (
-										<Draggable
-											key={match.id}
-											draggableId={match.id}
-											index={index}>
+										<Draggable key={match.id} draggableId={match.id} index={index}>
 											{(provided) => (
 												<div
 													ref={provided.innerRef}
 													{...provided.draggableProps}
-													style={getItemStyle(
-														provided.draggableProps.style,
-													)}>
+													style={getItemStyle(provided.draggableProps.style)}>
 													<SingleMatch
 														handleProps={provided.dragHandleProps}
 														match={match}
@@ -216,4 +199,4 @@ const DashSchedule: React.FC = () => {
 	);
 };
 
-render(<DashSchedule />, document.getElementById('root'));
+ReactDOM.createRoot(document.getElementById('root')!).render(<DashSchedule />);
