@@ -27,6 +27,7 @@ import {
 	DropResult,
 } from 'react-beautiful-dnd';
 import { SingleMatch } from './setup/schedule/singlematch';
+import { Tournaments } from '../types/tournament';
 
 const Divider = styled.div`
 	height: 1px;
@@ -57,9 +58,11 @@ const getItemStyle = (draggableStyle: DraggingStyle | NotDraggingStyle | undefin
 });
 
 const DashSchedule: React.FC = () => {
+	const [tournamentsRep] = useReplicant<Tournaments>('tournaments', {});
 	const [teamsRep] = useReplicant<Team[]>('teams', []);
 	const [matchesRep] = useReplicant<Matches>('matches', []);
 	const [currentMatchRep] = useReplicant<Match | undefined>('currentMatch', undefined);
+	const [selectedTournament, setSelectedTournament] = useState('');
 
 	const [teamA, setTeamA] = useState('');
 	const [teamB, setTeamB] = useState('');
@@ -68,7 +71,7 @@ const DashSchedule: React.FC = () => {
 
 	const teamsList = teamsRep.map((team) => {
 		return (
-			<MenuItem key={team.id} value={team.name}>
+			<MenuItem key={team.id} value={team.id}>
 				<img
 					style={{
 						height: 20,
@@ -79,6 +82,25 @@ const DashSchedule: React.FC = () => {
 					src={team.logo}
 				/>
 				{team.name}
+			</MenuItem>
+		);
+	});
+
+	const tournamentItems = Object.entries(tournamentsRep).map(([key, tournament]) => {
+		return (
+			<MenuItem key={key} value={tournament.id}>
+				{tournament.logo && (
+					<img
+						style={{
+							height: 20,
+							width: 20,
+							objectFit: 'scale-down',
+							marginRight: 10,
+						}}
+						src={tournament.logo}
+					/>
+				)}
+				{tournament.name}
 			</MenuItem>
 		);
 	});
@@ -108,6 +130,23 @@ const DashSchedule: React.FC = () => {
 	return (
 		<ThemeProvider theme={theme}>
 			<Grid container>
+				<Grid item container>
+					<FormControl variant="filled" style={{ minWidth: 200 }}>
+						<InputLabel id="tournamentSelect">Tournament</InputLabel>
+						<Select
+							labelId="tournamentSelect"
+							value={selectedTournament}
+							onChange={(e): void => setSelectedTournament(e.target.value as string)}>
+							<MenuItem key="empty" value="">
+								<i>Matches without a tournament</i>
+							</MenuItem>
+							<MenuItem key="empty" value="All">
+								<i>All Matches</i>
+							</MenuItem>
+							{tournamentItems}
+						</Select>
+					</FormControl>
+				</Grid>
 				<Grid
 					item
 					container
@@ -171,7 +210,8 @@ const DashSchedule: React.FC = () => {
 					<Droppable droppableId="schedule">
 						{(provided) => (
 							<div ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%' }}>
-								{matchesRep.map((match, index) => {
+								{matchesRep.filter((match, index) => {
+									if (match.tournamentId !== selectedTournament && selectedTournament !== 'All') return;
 									return (
 										<Draggable key={match.id} draggableId={match.id} index={index}>
 											{(provided) => (

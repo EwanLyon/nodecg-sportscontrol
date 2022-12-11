@@ -4,13 +4,11 @@ import _ from 'lodash';
 
 import { MapInfo, Match, Matches, NewMatch } from '../types/matches';
 import { Team } from '../types/team';
-import { CSGO } from '../types/csgo-gsi';
 
 const nodecg = nodecgApiContext.get();
 const currentMatchRep = nodecg.Replicant<Match | undefined>('currentMatch');
 const matchesRep = nodecg.Replicant<Matches>('matches');
 const teamsRep = nodecg.Replicant<Team[]>('teams');
-const round30Winner = nodecg.Replicant<string>('round30Winner');
 
 // If no current match set then start at the very beginning, a very good place to start
 if (!currentMatchRep.value) {
@@ -52,19 +50,23 @@ nodecg.listenFor('prevMatch', () => {
 });
 
 nodecg.listenFor('createNewMatch', (newMatch: NewMatch) => {
-	const teamA = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamA))!;
-	const teamB = _.cloneDeep(teamsRep.value.find(team => team.name === newMatch.teamB))!;
+	const teamA = _.cloneDeep(teamsRep.value.find(team => team.id === newMatch.teamA));
+	const teamB = _.cloneDeep(teamsRep.value.find(team => team.id === newMatch.teamB));
 
-	const matchId = uuid();
+	if (!teamA || !teamB) {
+		nodecg.log.error(`Could not find either/both TeamA or TeamB: ${newMatch.teamA}, ${newMatch.teamB}`);
+		return;
+	}
 
 	const createdMatch: Match = {
-		id: matchId,
+		id: newMatch.id ?? uuid(),
 		maps: [],
 		status: 'Soon',
 		time: newMatch.time,
 		matchType: newMatch.matchType,
 		teamA,
 		teamB,
+		winner: newMatch.winner
 	};
 
 	matchesRep.value.push(createdMatch);
@@ -126,57 +128,58 @@ nodecg.listenFor('removeMatch', (id: string) => {
 	}
 });
 
-nodecg.listenFor('addMap', (data: MapInfo) => {
-	if (!currentMatchRep.value) return;
+// Was CSGO map stuff
+// nodecg.listenFor('addMap', (data: MapInfo) => {
+// 	if (!currentMatchRep.value) return;
 
-	currentMatchRep.value.maps.push(data);
+// 	currentMatchRep.value.maps.push(data);
 
-	const currentMatchIndex = matchesRep.value.findIndex(
-		(match) => match.id === currentMatchRep.value?.id,
-	);
-	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
-});
+// 	const currentMatchIndex = matchesRep.value.findIndex(
+// 		(match) => match.id === currentMatchRep.value?.id,
+// 	);
+// 	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
+// });
 
-nodecg.listenFor('removeMap', (mapName: string) => {
-	if (!currentMatchRep.value) return;
+// nodecg.listenFor('removeMap', (mapName: string) => {
+// 	if (!currentMatchRep.value) return;
 
-	const mapIndex = currentMatchRep.value.maps.findIndex((map) => map.map === mapName);
+// 	const mapIndex = currentMatchRep.value.maps.findIndex((map) => map.map === mapName);
 
-	if (mapIndex === -1) return;
+// 	if (mapIndex === -1) return;
 
-	currentMatchRep.value.maps.splice(mapIndex, 1);
+// 	currentMatchRep.value.maps.splice(mapIndex, 1);
 
-	const currentMatchIndex = matchesRep.value.findIndex(
-		(match) => match.id === currentMatchRep.value?.id,
-	);
-	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
-});
+// 	const currentMatchIndex = matchesRep.value.findIndex(
+// 		(match) => match.id === currentMatchRep.value?.id,
+// 	);
+// 	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
+// });
 
-nodecg.listenFor('reorderMaps', (data: MapInfo[]) => {
-	if (!currentMatchRep.value) return;
+// nodecg.listenFor('reorderMaps', (data: MapInfo[]) => {
+// 	if (!currentMatchRep.value) return;
 
-	currentMatchRep.value.maps = data;
+// 	currentMatchRep.value.maps = data;
 
-	const currentMatchIndex = matchesRep.value.findIndex(
-		(match) => match.id === currentMatchRep.value?.id,
-	);
-	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
-});
+// 	const currentMatchIndex = matchesRep.value.findIndex(
+// 		(match) => match.id === currentMatchRep.value?.id,
+// 	);
+// 	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
+// });
 
-nodecg.listenFor('setVetoSide', (data: { mapName: string; side: string }) => {
-	if (!currentMatchRep.value) return;
+// nodecg.listenFor('setVetoSide', (data: { mapName: string; side: string }) => {
+// 	if (!currentMatchRep.value) return;
 
-	const mapIndex = currentMatchRep.value.maps.findIndex((map) => map.map === data.mapName);
+// 	const mapIndex = currentMatchRep.value.maps.findIndex((map) => map.map === data.mapName);
 
-	if (mapIndex === -1) return;
+// 	if (mapIndex === -1) return;
 
-	currentMatchRep.value.maps[mapIndex].side = data.side;
+// 	currentMatchRep.value.maps[mapIndex].side = data.side;
 
-	const currentMatchIndex = matchesRep.value.findIndex(
-		(match) => match.id === currentMatchRep.value?.id,
-	);
-	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
-});
+// 	const currentMatchIndex = matchesRep.value.findIndex(
+// 		(match) => match.id === currentMatchRep.value?.id,
+// 	);
+// 	matchesRep.value[currentMatchIndex].maps = _.cloneDeep(currentMatchRep.value.maps);
+// });
 
 function getFirstMatch() {
 	if (Object.keys(matchesRep.value).length > 0) {
@@ -187,114 +190,114 @@ function getFirstMatch() {
 }
 
 // Returns true if teamOne should be T's
-function currentTeamSide(round: number): boolean {
-	if (round < 15) {
-		return true;
-	}
+// function currentTeamSide(round: number): boolean {
+// 	if (round < 15) {
+// 		return true;
+// 	}
 
-	if (round >= 30) {
-		// Overtime math
-		return Boolean(Math.floor((round - 27) / 6) % 2);
-	}
+// 	if (round >= 30) {
+// 		// Overtime math
+// 		return Boolean(Math.floor((round - 27) / 6) % 2);
+// 	}
 
-	return false;
-}
+// 	return false;
+// }
 
-nodecg.listenFor('gameOver', (game: CSGO) => {
-	nodecg.log.info('Game over!');
-	const teamOneData = currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct;
-	const teamTwoData = currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t;
+// nodecg.listenFor('gameOver', (game: CSGO) => {
+// 	nodecg.log.info('Game over!');
+// 	const teamOneData = currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct;
+// 	const teamTwoData = currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t;
 
-	if (!currentMatchRep.value) {
-		return;
-	}
+// 	if (!currentMatchRep.value) {
+// 		return;
+// 	}
 
-	const roundWinsArray = Object.values(game.map.round_wins);
+// 	const roundWinsArray = Object.values(game.map.round_wins);
 
-	// First half data
-	let teamAFirst = 0;
-	let teamBFirst = 0;
-	for (let i = 0; i < Math.min(15, roundWinsArray.length); i++) {
-		roundWinsArray[i].substring(0, 2) === 'ct' ? teamBFirst++ : teamAFirst++;	/* eslint-disable-line */
-	}
+// 	// First half data
+// 	let teamAFirst = 0;
+// 	let teamBFirst = 0;
+// 	for (let i = 0; i < Math.min(15, roundWinsArray.length); i++) {
+// 		roundWinsArray[i].substring(0, 2) === 'ct' ? teamBFirst++ : teamAFirst++;	/* eslint-disable-line */
+// 	}
 
-	// Second half data
-	let teamASecond = 0;
-	let teamBSecond = 0;
-	for (let i = 15; i < Math.min(30, roundWinsArray.length); i++) {
-		roundWinsArray[i].substring(0, 2) === 'ct' ? teamASecond++ : teamBSecond++;	/* eslint-disable-line */
-	}
+// 	// Second half data
+// 	let teamASecond = 0;
+// 	let teamBSecond = 0;
+// 	for (let i = 15; i < Math.min(30, roundWinsArray.length); i++) {
+// 		roundWinsArray[i].substring(0, 2) === 'ct' ? teamASecond++ : teamBSecond++;	/* eslint-disable-line */
+// 	}
 
-	if (round30Winner.value === '' && game.map.round >= 29) {
-		nodecg.log.warn(
-			'Round 30 was not recorded. Please correct the final scores in the nodecg dashboard.',
-		);
-	} else if (round30Winner.value !== '') {
-		round30Winner.value === 'CT' ? teamASecond++ : teamBSecond++;	/* eslint-disable-line */
-	}
+// 	if (round30Winner.value === '' && game.map.round >= 29) {
+// 		nodecg.log.warn(
+// 			'Round 30 was not recorded. Please correct the final scores in the nodecg dashboard.',
+// 		);
+// 	} else if (round30Winner.value !== '') {
+// 		round30Winner.value === 'CT' ? teamASecond++ : teamBSecond++;	/* eslint-disable-line */
+// 	}
 
-	// Overtime
-	const teamAOT =
-		(currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct).score -
-		(teamAFirst + teamASecond);
-	const teamBOT =
-		(currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t).score -
-		(teamAFirst + teamASecond);
+// 	// Overtime
+// 	const teamAOT =
+// 		(currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct).score -
+// 		(teamAFirst + teamASecond);
+// 	const teamBOT =
+// 		(currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t).score -
+// 		(teamAFirst + teamASecond);
 
-	// Find related map
-	const mapIndex = currentMatchRep.value.maps.findIndex(
-		(map) => map.map.toLowerCase() === game.map.name.substring(3),
-	);
+// 	// Find related map
+// 	const mapIndex = currentMatchRep.value.maps.findIndex(
+// 		(map) => map.map.toLowerCase() === game.map.name.substring(3),
+// 	);
 
-	if (mapIndex === -1) {
-		nodecg.log.warn(
-			`Tried to save final data but could not find ${game.map.name} in the current matches.`,
-		);
-		nodecg.log.warn(
-			`Final Scores: \n${
-				currentMatchRep.value.teamA.name
-			}: ${teamAFirst} ${teamASecond} ${teamAOT} | ${
-				(currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct).score
-			}\n${currentMatchRep.value.teamB.name}: ${teamBFirst} ${teamBSecond} ${teamBOT} | ${
-				(currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t).score
-			}`,
-		);
-		return;
-	}
+// 	if (mapIndex === -1) {
+// 		nodecg.log.warn(
+// 			`Tried to save final data but could not find ${game.map.name} in the current matches.`,
+// 		);
+// 		nodecg.log.warn(
+// 			`Final Scores: \n${
+// 				currentMatchRep.value.teamA.name
+// 			}: ${teamAFirst} ${teamASecond} ${teamAOT} | ${
+// 				(currentTeamSide(game.map.round) ? game.map.team_t : game.map.team_ct).score
+// 			}\n${currentMatchRep.value.teamB.name}: ${teamBFirst} ${teamBSecond} ${teamBOT} | ${
+// 				(currentTeamSide(game.map.round) ? game.map.team_ct : game.map.team_t).score
+// 			}`,
+// 		);
+// 		return;
+// 	}
 
-	if (currentMatchRep.value.maps[mapIndex].ban) {
-		nodecg.log.warn(
-			`Match saving to has the map as a banned veto. Are you on the correct match? Saving anyway...`,
-		);
-	}
+// 	if (currentMatchRep.value.maps[mapIndex].ban) {
+// 		nodecg.log.warn(
+// 			`Match saving to has the map as a banned veto. Are you on the correct match? Saving anyway...`,
+// 		);
+// 	}
 
-	currentMatchRep.value.maps[mapIndex] = {
-		...currentMatchRep.value.maps[mapIndex],
-		complete: true,
-		totalScore: {
-			teamA: teamOneData.score,
-			teamB: teamTwoData.score,
-		},
-		firstHalf: {
-			teamA: teamAFirst,
-			teamB: teamBFirst,
-		},
-		secondHalf: {
-			teamA: teamASecond,
-			teamB: teamBSecond,
-		},
-		ot: {
-			teamA: teamAOT,
-			teamB: teamBOT,
-		},
-		roundWins: roundWinsArray,
-	};
+// 	currentMatchRep.value.maps[mapIndex] = {
+// 		...currentMatchRep.value.maps[mapIndex],
+// 		complete: true,
+// 		totalScore: {
+// 			teamA: teamOneData.score,
+// 			teamB: teamTwoData.score,
+// 		},
+// 		firstHalf: {
+// 			teamA: teamAFirst,
+// 			teamB: teamBFirst,
+// 		},
+// 		secondHalf: {
+// 			teamA: teamASecond,
+// 			teamB: teamBSecond,
+// 		},
+// 		ot: {
+// 			teamA: teamAOT,
+// 			teamB: teamBOT,
+// 		},
+// 		roundWins: roundWinsArray,
+// 	};
 
-	const currentMatchIndex = matchesRep.value.findIndex(
-		(match) => match.id === currentMatchRep.value?.id,
-	);
-	matchesRep.value[currentMatchIndex] = _.cloneDeep(currentMatchRep.value);
-});
+// 	const currentMatchIndex = matchesRep.value.findIndex(
+// 		(match) => match.id === currentMatchRep.value?.id,
+// 	);
+// 	matchesRep.value[currentMatchIndex] = _.cloneDeep(currentMatchRep.value);
+// });
 
 nodecg.listenFor('switchTeamAandB', () => {
 	if (!currentMatchRep.value) return;

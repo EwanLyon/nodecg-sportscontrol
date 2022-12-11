@@ -11,11 +11,13 @@ import {
 	DoubleElimination,
 	TournamentEdit,
 } from '../types/tournament';
+import { Matches } from '../types/matches';
 
 const nodecg = nodecgApiContext.get();
 
 const tournamentsRep = nodecg.Replicant<Tournaments>('tournaments');
 const currentTournamentRep = nodecg.Replicant<string>('currentTournament');
+const matchesRep = nodecg.Replicant<Matches>('matches');
 
 nodecg.listenFor('newTournament', (data: TournamentSetup) => {
 	if (!isFixtureType(data.fixtureType)) {
@@ -38,7 +40,7 @@ nodecg.listenFor('newTournament', (data: TournamentSetup) => {
 	}
 
 	const newTournament: Tournament = {
-		id: uuid(), // Putting 'a' forces it to be a string
+		id: uuid(),
 		logo: data.logo,
 		name: data.name,
 		fixture: fixture,
@@ -46,6 +48,10 @@ nodecg.listenFor('newTournament', (data: TournamentSetup) => {
 	};
 
 	tournamentsRep.value[newTournament.id] = newTournament;
+});
+
+nodecg.listenFor('newChallongeTournament', (data: Tournament) => {
+	tournamentsRep.value[data.id] = data;
 });
 
 nodecg.listenFor('editTournament', (data: TournamentEdit) => {
@@ -173,6 +179,14 @@ nodecg.listenFor(
 		if (isSingleElimination(mutableTournament.fixture)) {
 			mutableTournament.fixture.matches[data.round][data.match] = data.matchId;
 			tournamentsRep.value[data.tournamentId] = mutableTournament;
+
+			// Update match tournament id
+			const matchIdx = matchesRep.value.findIndex(match => match.id === data.matchId);
+			if (matchIdx > -1) {
+				matchesRep.value[matchIdx] = Object.assign(matchesRep.value[matchIdx], {tournamentId: data.tournamentId});
+			} else {
+				nodecg.log.error(`Tournament: Tried to update match ${data.matchId} tournament ID but couldn't find match...`)
+			}
 		} else {
 			nodecg.log.warn(
 				`Tried to modify a single elimination fixture when the tournament edited is : ${
@@ -201,6 +215,14 @@ nodecg.listenFor(
 			}
 
 			tournamentsRep.value[data.tournamentId] = mutableTournament;
+
+			// Update match tournament id
+			const matchIdx = matchesRep.value.findIndex(match => match.id === data.matchId);
+			if (matchIdx > -1) {
+				matchesRep.value[matchIdx] = Object.assign(matchesRep.value[matchIdx], {tournamentId: data.tournamentId});
+			} else {
+				nodecg.log.error(`Tournament: Tried to update match ${data.matchId} tournament ID but couldn't find match...`)
+			}
 		} else {
 			nodecg.log.warn(
 				`Tried to modify a double elimination fixture when the tournament edited is : ${

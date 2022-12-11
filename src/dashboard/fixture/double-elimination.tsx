@@ -67,13 +67,13 @@ export const DoubleElimination: React.FC<Props> = (props: Props) => {
 	const allMatches = matchesRep.map((match) => {
 		return (
 			<MenuItem key={match.id} value={match.id}>
-				{match.teamA.name} vs {match.teamB.name} @ {match.time}
+				{match.teamA.name} vs {match.teamB.name}
 			</MenuItem>
 		);
 	});
 
-	const winnerEliminationHeight = 70 * props.data.winnerMatches[0].length;
-	const loserEliminationHeight = 70 * props.data.loserMatches[0].length;
+	const winnerEliminationHeight = 70 * props.data.winnerMatches[0]?.length ?? 70;
+	const loserEliminationHeight = 70 * props.data.loserMatches[0]?.length ?? 70;
 
 	const allWinnerMatches = (
 		<AllMatches style={{ height: winnerEliminationHeight }}>

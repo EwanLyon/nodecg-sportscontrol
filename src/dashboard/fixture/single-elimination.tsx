@@ -50,9 +50,10 @@ export const SingleElimination: React.FC<Props> = (props: Props) => {
 	const [matchesRep] = useReplicant<Matches>('matches', []);
 
 	const allMatches = matchesRep.map((match) => {
+		console.log(match);
 		return (
 			<MenuItem key={match.id} value={match.id}>
-				{match.teamA.name} vs {match.teamB.name} @ {match.time}
+				{match.teamA.name} vs {match.teamB.name}
 			</MenuItem>
 		);
 	});

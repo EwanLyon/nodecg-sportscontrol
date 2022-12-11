@@ -68,10 +68,10 @@ const TeamBox: React.FC<TeamBoxProps> = (props: TeamBoxProps) => {
 };
 
 export const SingleMatch: React.FC<Props> = (props: Props) => {
-	if (!props.match.teamA || !props.match.teamB) {
-		// Game somehow exists that doesnt have a team associated with it
-		removeGame();
-	}
+	// if (!props.match.teamA || !props.match.teamB) {
+	// 	// Game somehow exists that doesnt have a team associated with it
+	// 	removeGame();
+	// }
 
 	function removeGame() {
 		nodecg.sendMessage('removeMatch', props.match.id);

@@ -6,18 +6,23 @@ export type Matches = Match[];
 export interface NewMatch {
 	teamA: string;
 	teamB: string;
-	time: string;
-	matchType: string;
+	time?: string;
+	matchType?: string;
+	id?: string;
+	winner?: string;
+	tournamentId?: string;
 }
 
 export interface Match {
 	teamA: Team;
 	teamB: Team;
-	maps: MapInfo[];
-	status: string;
-	time: string;
-	matchType: string;
+	maps?: MapInfo[];
+	status?: string;
+	time?: string;
+	matchType?: string;
 	id: string;
+	winner?: string;
+	tournamentId?: string;
 }
 
 export interface Score {

@@ -15,6 +15,7 @@ import { CreateTournament } from './fixture/create-tournament';
 import { SingleElimination } from './fixture/single-elimination';
 import { DoubleElimination } from './fixture/double-elimination';
 import { EditTournament } from './fixture/edit-tournament';
+import { ImportChallonge } from './fixture/import-challonge';
 
 const SelectionMenu = styled.div`
 	width: 100%;
@@ -46,16 +47,19 @@ const TournamentLogo = styled.img`
 const Tournament: React.FC = () => {
 	const [tournamentsRep] = useReplicant<Tournaments>('tournaments', {});
 	const [selectedTournament, setSelectedTournament] = useState('');
-	const [createTournamentDialog, setCreateTournamentDialog] = React.useState(false);
-	const [editTournamentDialog, setEditTournamentDialog] = React.useState(false);
+	const [createTournamentDialog, setCreateTournamentDialog] = useState(false);
+	const [importChallongeDialog, setImportChallongeDialog] = useState(false);
+	const [editTournamentDialog, setEditTournamentDialog] = useState(false);
 	const [currentTournamentRep] = useReplicant<string>('currentTournament', '');
 
 	useEffect(() => {
 		if (currentTournamentRep) {
 			setSelectedTournament(currentTournamentRep);
 		} else {
-			const mostRecentTournament = Object.keys(tournamentsRep)[Object.keys(tournamentsRep).length - 1];
-			setSelectedTournament(mostRecentTournament);
+			if (tournamentsRep) {
+				const mostRecentTournament = Object.keys(tournamentsRep)[Object.keys(tournamentsRep).length - 1];
+				setSelectedTournament(mostRecentTournament);
+			}
 		}
 	}, [tournamentsRep, currentTournamentRep]);
 
@@ -67,9 +71,14 @@ const Tournament: React.FC = () => {
 		setEditTournamentDialog(true);
 	}
 
+	function handleImportOpen() {
+		setImportChallongeDialog(true);
+	}
+
 	function handleClose() {
 		setCreateTournamentDialog(false);
 		setEditTournamentDialog(false);
+		setImportChallongeDialog(false);
 	}
 
 	function setActiveTournament() {
@@ -137,6 +146,9 @@ const Tournament: React.FC = () => {
 				<Button variant="contained" onClick={handleCreateOpen}>
 					New Tournament
 				</Button>
+				<Button variant="contained" onClick={handleImportOpen}>
+					Import From Challonge
+				</Button>
 				<Button variant="contained" onClick={handleEditOpen} disabled={!tournamentsRep[selectedTournament]}>
 					Edit Tournament
 				</Button>
@@ -158,6 +170,7 @@ const Tournament: React.FC = () => {
 			)}
 			{fixtureElement}
 			<CreateTournament onClose={handleClose} open={createTournamentDialog} />
+			<ImportChallonge onClose={handleClose} open={importChallongeDialog} />
 			<EditTournament
 				onClose={handleClose}
 				open={editTournamentDialog}

@@ -10,7 +10,7 @@ import { Team } from '../types/team';
 const playersRep = nodecg.Replicant<Player[]>('players');
 
 nodecg.listenFor('newPlayer', (data: Player) => {
-	nodecg.log.info('Adding ' + data.name);
+	nodecg.log.info('Player: Adding ' + data.name);
 
 	data.id = uuidv4();
 
@@ -23,8 +23,13 @@ nodecg.listenFor('newPlayer', (data: Player) => {
 	nodecg.sendMessage('newPlayer:Response');
 });
 
+nodecg.listenFor('newChallongePlayer', (data: Player) => {
+	playersRep.value.push(data);
+	nodecg.sendMessage('newTeam', <Team>{ id: data.id, name: data.name, countryflag: data.countryflag, logo: data.image })
+});
+
 nodecg.listenFor('updatePlayer', (data: Player) => {
-	nodecg.log.info('Updating ' + data.name);
+	nodecg.log.info('Player: Updating ' + data.name);
 
 	const playerIndex = playersRep.value.findIndex(player => player.id === data.id);
 
@@ -40,7 +45,7 @@ nodecg.listenFor('updatePlayer', (data: Player) => {
 });
 
 nodecg.listenFor('deletePlayer', (id: string) => {
-	nodecg.log.info(`Deleting player: ${id}`);
+	nodecg.log.info(`Player: Deleting: ${id}`);
 
 	const playerIndex = playersRep.value.findIndex(player => player.id === id);
 
